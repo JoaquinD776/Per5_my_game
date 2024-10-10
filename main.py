@@ -1,12 +1,18 @@
-# this file was created by: Chris Cozort
+# this file was created by: Joaquin Duran
 
 # this is where we import libraries and modules
 import pygame as pg
 from settings import *
-from sprites import *
+# from sprites import *
+from sprites_side_scroller.py import *
 from tilemap import *
 from os import path
 # we are editing this file after installing git
+
+'''
+
+
+'''
 
 # create a game class that carries all the properties of the game and methods
 class Game:
@@ -17,7 +23,7 @@ class Game:
     pg.mixer.init()
     self.clock = pg.time.Clock()
     self.screen = pg.display.set_mode((WIDTH, HEIGHT))
-    pg.display.set_caption("Chris' Coolest Game Ever...")
+    pg.display.set_caption("Joaquin's Game")
     self.playing = True
   # this is where the game creates the stuff you see and hear
   def load_data(self):
@@ -30,6 +36,7 @@ class Game:
     self.all_sprites = pg.sprite.Group()
     self.all_walls = pg.sprite.Group()
     self.all_powerups = pg.sprite.Group()
+    self.all_coins = pg.sprite.Group()
     # instantiating the class to create the player object 
     # self.player = Player(self, 5, 5)
     # self.mob = Mob(self, 100, 100)
@@ -50,9 +57,10 @@ class Game:
           self.player = Player(self, col, row)
         if tile == 'U':
           Powerup(self, col, row)
+        if tile == 'C':
+          Coin(self, col, row)
 
-
-# this is a methdod
+# this is a method
 # methods are like functions that are part of a class
 # the run method runs the game loop
   def run(self):
@@ -88,8 +96,8 @@ class Game:
   def draw(self):
     self.screen.fill(BLACK)
     self.all_sprites.draw(self.screen)
-    self.draw_text(self.screen, "Game", 24, WHITE, WIDTH/2, HEIGHT/2)
     self.draw_text(self.screen, str(self.dt*1000), 24, WHITE, WIDTH/30, HEIGHT/30)
+    self.draw_text(self.screen, str(self.player.coin_count), 24, WHITE, WIDTH-100, 50)
     pg.display.flip()
 
 if __name__ == "__main__":
