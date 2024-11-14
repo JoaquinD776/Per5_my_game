@@ -3,7 +3,7 @@
 # Imports setting for color, dimensions
 import pygame as pg
 from pygame.sprite import Sprite
-from game_1_settings import *
+from settings import *
 from random import randint
 
 vec = pg.math.Vector2
@@ -125,8 +125,8 @@ class Player(Sprite):
                 if self.speed < 1:  
                 # Prevent speed from going below 1
                     self.speed = 1
-            if str(hits[0].__class__.__name__) == "JumpBoostPowerup":
-                print("Jump boost power-up collected!")
+            if str(hits[0].__class__.__name__) == "Jumpboost":
+                print("Jumpboost collected!")
                 self.jump_power = 40  # Increase jump power
                 self.jump_boost_start_time = pg.time.get_ticks()  # Record start time of boost
                 if self.jump_boost_start_time > 2000:
@@ -140,15 +140,7 @@ class Player(Sprite):
         self.acc.x += self.vel.x * FRICTION
         self.vel += self.acc
 
-         # Check if jump boost duration has ended
-       # Check if jump boost duration has ended
-        if self.jump_boost_start_time:
-            elapsed_time = (pg.time.get_ticks() - self.jump_boost_start_time) / 1000  # Convert to seconds
-            print(f"Jump boost time remaining: {2 - elapsed_time:.1f} seconds")
-            
-        if elapsed_time > 2:  # 2 seconds
-            self.jump_power = self.original_jump_power  # Reset jump power
-            self.jump_boost_start_time = None  # Clear boost timer
+        
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0
 
@@ -232,13 +224,14 @@ class Powerup(Sprite):
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 
-class JumpBoost(Sprite):
+class Jumpboost(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_powerups
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill((0, 255, 255))  # Cyan color for the jump boost
+        self.image = self.game.jumpboost_img
+        self.image.set_colorkey(BLACK)        
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
@@ -248,8 +241,9 @@ class Coin(Sprite):
         self.groups = game.all_sprites, game.all_coins
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(GOLD)
+        self.image = pg.Surface((32, 32))
+        self.image = self.game.mob_img
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE

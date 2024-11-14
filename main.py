@@ -1,50 +1,60 @@
 # this file was created by: Joaquin Duran
-
 # this is where we import libraries and modules
 import pygame as pg
 from settings import *
 # from sprites import *
-from sprites_side_scroller.py import *
+from sprites_side_scroller import *
 from tilemap import *
 from os import path
 # we are editing this file after installing git
 
 '''
+Elevator pitch: I want to create a game about parkouring (like a platform game)
+
+GOALS: to complete a parkour level and beat the boss
+RULES: jump, move left and right, time jumps, if you fall off map, respawn at checkpoint
+FEEDBACK: multiplayer?
+FREEDOM: x and y movement with jump, platforming
+
+Alpha goal: map moves with character (vertically)
+
+'''
 
 
 '''
 
+sources:
+
+'''
 # create a game class that carries all the properties of the game and methods
 class Game:
   # initializes all the things we need to run the game...includes the game clock which can set the FPS
   def __init__(self):
     pg.init()
-    # sound mixer...
     pg.mixer.init()
     self.clock = pg.time.Clock()
     self.screen = pg.display.set_mode((WIDTH, HEIGHT))
+    # Determines screen dimensions from settings
     pg.display.set_caption("Joaquin's Game")
     self.playing = True
-  # this is where the game creates the stuff you see and hear
   def load_data(self):
     self.game_folder = path.dirname(__file__)
-    self.map = Map(path.join(self.game_folder, 'level1.txt'))
+    self.map = Map(path.join(self.game_folder, 'game_1_level1.txt'))
+    self.game_folder = path.dirname(__file__)
+    self.img_folder = path.join(self.game_folder, 'images')
+    self.jumpboost_img = pg.image.load(path.join(self.img_folder, 'Jumpboost.png'))
+    self.coin_img = pg.image.load(path.join(self.img_folder, 'coin.png'))
   def new(self):
     self.load_data()
     print(self.map.data)
-    # create the all sprites group to allow for batch updates and draw methods
+    # create the all sprites group to input sprites into the game
     self.all_sprites = pg.sprite.Group()
     self.all_walls = pg.sprite.Group()
     self.all_powerups = pg.sprite.Group()
     self.all_coins = pg.sprite.Group()
-    # instantiating the class to create the player object 
-    # self.player = Player(self, 5, 5)
-    # self.mob = Mob(self, 100, 100)
-    # self.wall = Wall(self, WIDTH//2, HEIGHT//2)
-    # # instantiates wall and mob objects
-    # for i in range(12):
-    #   Wall(self, TILESIZE*i, HEIGHT/2)
-    #   Mob(self, TILESIZE*i, TILESIZE*i)
+    self.all_slowpowerups = pg.sprite.Group()
+    self.all_platforms = pg.sprite.Group()
+    # Each sprite has a letter or number which is inputed into the level text
     for row, tiles in enumerate(self.map.data):
       print(row*TILESIZE)
       for col, tile in enumerate(tiles):
@@ -59,10 +69,15 @@ class Game:
           Powerup(self, col, row)
         if tile == 'C':
           Coin(self, col, row)
-
-# this is a method
-# methods are like functions that are part of a class
-# the run method runs the game loop
+        if tile == 'Q':
+          SlowPowerup(self, col, row)
+        if tile == 'R':
+          Platform(self, col, row)
+        if tile == 'J':
+          Jumpboost(self, col, row)
+          
+  # this is a method
+  # the run method runs the game loop
   def run(self):
     while self.playing:
       self.dt = self.clock.tick(FPS) / 1000
@@ -82,7 +97,8 @@ class Game:
   # process
   # this is where the game updates the game state
   def update(self):
-    # update all the sprites...and I MEAN ALL OF THEM
+    # update all the sprites
+    # text on screen including fps and coin count
     self.all_sprites.update()
   def draw_text(self, surface, text, size, color, x, y):
     font_name = pg.font.match_font('arial')
