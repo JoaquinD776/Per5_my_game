@@ -43,7 +43,8 @@ class Game:
     self.game_folder = path.dirname(__file__)
     self.img_folder = path.join(self.game_folder, 'images')
     self.jumpboost_img = pg.image.load(path.join(self.img_folder, 'Jumpboost.png'))
-    self.coin_img = pg.image.load(path.join(self.img_folder, 'coin.png'))
+    self.coin_img = pg.image.load(path.join(self.img_folder, 'Coin.png'))
+    self.wall_img = pg.image.load(path.join(self.img_folder, 'Wall.png'))
   def new(self):
     self.load_data()
     print(self.map.data)

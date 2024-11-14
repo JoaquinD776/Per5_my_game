@@ -188,7 +188,8 @@ class Wall(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(BLUE)
+        self.image = self.game.wall_img
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
@@ -241,8 +242,8 @@ class Coin(Sprite):
         self.groups = game.all_sprites, game.all_coins
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pg.Surface((32, 32))
-        self.image = self.game.mob_img
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image = self.game.coin_img
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE
