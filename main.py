@@ -45,6 +45,7 @@ class Game:
     self.jumpboost_img = pg.image.load(path.join(self.img_folder, 'Jumpboost.png'))
     self.coin_img = pg.image.load(path.join(self.img_folder, 'Coin.png'))
     self.wall_img = pg.image.load(path.join(self.img_folder, 'Wall.png'))
+    self.platform_img = pg.image.load(path.join(self.img_folder, 'Platform.png'))
   def new(self):
     self.load_data()
     print(self.map.data)
@@ -124,4 +125,3 @@ if __name__ == "__main__":
   print("main is running...")
   g.new()
   g.run()
-  
