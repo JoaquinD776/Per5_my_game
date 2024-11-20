@@ -24,10 +24,9 @@ class Player(Sprite):
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         #speed of player
-        self.speed = 3
+        self.speed = 2
         self.coin_count = 0
-        self.jump_boost_start_time = None  # Start with no boost time
-        self.original_jump_power = 20      # Default jump power
+        self.original_jump_power = 17      # Default jump power
         self.jump_power = self.original_jump_power  # Initial jump power
         self.jumping = False
         # keys to move player
@@ -43,6 +42,7 @@ class Player(Sprite):
         if keys[pg.K_r]:
             self.pos = (WIDTH/2, HEIGHT/2)
             print("respawn")
+            self.jump_power = 17
 
     def jump(self):
         print("im trying to jump")
