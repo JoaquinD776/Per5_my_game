@@ -6,6 +6,7 @@ from settings import *
 from sprites_side_scroller import *
 from tilemap import *
 from os import path
+import random
 # we are editing this file after installing git
 
 '''
@@ -39,6 +40,7 @@ class Game:
     self.playing = True
   def load_data(self):
     self.game_folder = path.dirname(__file__)
+    self.snd_folder = path.join(self.game_folder, 'sounds' ) 
     self.map = Map(path.join(self.game_folder, 'game_1_level1.txt'))
     self.game_folder = path.dirname(__file__)
     self.img_folder = path.join(self.game_folder, 'images')
@@ -46,6 +48,11 @@ class Game:
     self.coin_img = pg.image.load(path.join(self.img_folder, 'Coin.png'))
     self.wall_img = pg.image.load(path.join(self.img_folder, 'Wall.png'))
     self.platform_img = pg.image.load(path.join(self.img_folder, 'Platform.png'))
+       # load sounds
+    #self.jump_snd = pg.mixer.Sound(path.join(self.snd_folder, 'jump_07.wav'))
+    pg.mixer.music.load(path.join(self.snd_folder, 'bckgrd.ogg'))
+    pg.mixer.music.set_volume(0.4)
+    pg.mixer.music.play(loops=-1)
   def new(self):
     self.load_data()
     print(self.map.data)
@@ -56,6 +63,7 @@ class Game:
     self.all_coins = pg.sprite.Group()
     self.all_slowpowerups = pg.sprite.Group()
     self.all_platforms = pg.sprite.Group()
+    self.all_platformwalls = pg.sprite.Group()
     # Each sprite has a letter or number which is inputed into the level text
     for row, tiles in enumerate(self.map.data):
       print(row*TILESIZE)
@@ -77,6 +85,8 @@ class Game:
           Platform(self, col, row)
         if tile == 'J':
           Jumpboost(self, col, row)
+        if tile == 'p':
+          Platformwall(self, col, row, 100, 20)
           
   # this is a method
   # the run method runs the game loop
@@ -102,6 +112,22 @@ class Game:
     # update all the sprites
     # text on screen including fps and coin count
     self.all_sprites.update()
+    while len(self.all_platformwalls) < 15:
+        width = random.randrange(50, 100)
+        p = Platformwall(self, random.randrange(0, WIDTH//TILESIZE - width//TILESIZE), random.randrange(-5, 0), width, TILESIZE)
+        if random.randrange(0, 1) > 1:
+          c = Coin(self, p.rect.x//TILESIZE, p.rect.y//TILESIZE - 1)
+        self.all_platformwalls.add(p)
+        self.all_sprites.add(p)
+        self.all_coins.add(c)
+        self.all_sprites.add(c)
+    if self.player.rect.top <= HEIGHT/4:
+      print(str(len(self.all_platformwalls)))
+      self.player.pos.y += abs(self.player.vel.y)
+      for plat in self.all_platformwalls:
+        plat.rect.y += abs(self.player.vel.y)
+        if plat.rect.y >= HEIGHT:
+          
   def draw_text(self, surface, text, size, color, x, y):
     font_name = pg.font.match_font('arial')
     font = pg.font.Font(font_name, size)

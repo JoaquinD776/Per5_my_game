@@ -53,6 +53,11 @@ class Player(Sprite):
         # nothing else
         wall_hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
         platform_hits = pg.sprite.spritecollide(self, self.game.all_platforms, False)
+        platformwall_hits = pg.sprite.spritecollide(self, self.game.all_platformwalls, False)
+        if wall_hits or platformwall_hits and not self.jumping:
+            self.game.jump_snd.play()
+            self.jumping = True
+            self.vel
 
         self.rect.y -= 2
         # if player is not jumping on platform or wall, it stays still on y axis
@@ -74,6 +79,28 @@ class Player(Sprite):
                 self.rect.x = self.pos.x
         # collides with walls on y axis
         if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.all_platformwalls, False)
+            if hits:
+                if self.vel.y > 0:
+                    self.pos.y = hits[0].rect.top - TILESIZE
+                    self.vel.y = 0
+                # if self.vel.y < 0:
+                #     self.pos.y = hits[0].rect.bottom
+                self.vel.y = 0
+                self.rect.y = self.pos.y
+                self.jumping = False
+    def collide_with_platformwalls(self, dir):
+        # if dir == 'x':
+        #     hits = pg.sprite.spritecollide(self, self.game.all_platformwalls, False)
+        #     if hits:
+        #         if self.vel.x > 0:
+        #             self.pos.x = hits[0].rect.left - TILESIZE
+        #         if self.vel.x < 0:
+        #             self.pos.x = hits[0].rect.right
+        #         self.vel.x = 0
+        #         self.rect.x = self.pos.x
+        # collides with walls on y axis
+        if dir == 'y':
             hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
             if hits:
                 if self.vel.y > 0:
@@ -84,6 +111,11 @@ class Player(Sprite):
                 self.vel.y = 0
                 self.rect.y = self.pos.y
                 self.jumping = False
+
+            # if self.player.vel.y > 0:
+            # hits = pg.sprite.spritecollide(self.player, self.platformwalls, False)
+            # if hits:
+            #     self.player.pos.y
     # collides with platforms on x axis            
     def collide_with_platforms(self, dir):
         if dir == 'x':
@@ -150,11 +182,13 @@ class Player(Sprite):
         # collisions on x axis
         self.collide_with_walls('x')
         self.collide_with_platforms('x')
+        # self.collide_with_platformwalls('x')
 
         self.rect.y = self.pos.y
         # collisions on y axis
         self.collide_with_walls('y')
         self.collide_with_platforms('y')
+        self.collide_with_platformwalls('y')
         # collisions with coins, powerups
         self.collide_with_stuff(self.game.all_powerups, True)
         self.collide_with_stuff(self.game.all_coins, True)
@@ -261,6 +295,17 @@ class SlowPowerup(Sprite):
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 
+
+class Platformwall(Sprite):
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.all_sprites, game.all_platformwalls
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
 
             
   
