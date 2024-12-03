@@ -112,29 +112,30 @@ class Game:
     # update all the sprites
     # text on screen including fps and coin count
     self.all_sprites.update()
-    while len(self.all_platformwalls) < 15:
-        width = random.randrange(50, 100)
-        p = Platformwall(self, random.randrange(0, WIDTH//TILESIZE - width//TILESIZE), random.randrange(-5, 0), width, TILESIZE)
-        if random.randrange(0, 1) > 1:
-          c = Coin(self, p.rect.x//TILESIZE, p.rect.y//TILESIZE - 1)
-        self.all_platformwalls.add(p)
-        self.all_sprites.add(p)
-        self.all_coins.add(c)
+    while len(self.all_platforms) < 15:
+      width = random.randrange(50, 100)
+      p = Platform(self, random.randrange(0, WIDTH//TILESIZE - width//TILESIZE), random.randrange(-5, 0), width, TILESIZE)
+      if random.randint(0,9) > 4:
+        c = Coin(self, p.rect.x//TILESIZE, p.rect.y//TILESIZE - 1)
+        self.all_coins.add(c) #adds coin on platform
         self.all_sprites.add(c)
+      self.all_platforms.add(p)
+      self.all_sprites.add(p)
+
     if self.player.rect.top <= HEIGHT/4:
-      print(str(len(self.all_platformwalls)))
+      print(str(len(self.all_platforms)))
       self.player.pos.y += abs(self.player.vel.y)
-      for plat in self.all_platformwalls:
+      for plat in self.all_platforms:
         plat.rect.y += abs(self.player.vel.y)
         if plat.rect.y >= HEIGHT:
-          
-  def draw_text(self, surface, text, size, color, x, y):
-    font_name = pg.font.match_font('arial')
-    font = pg.font.Font(font_name, size)
-    text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect()
-    text_rect.midtop = (x,y)
-    surface.blit(text_surface, text_rect)
+
+          plat.kill() #destroys plats after they are off screen
+          print(str(len(self.all_coins)))
+      for coin in self.all_coins:
+        coin.rect.y += abs(self.player.vel.y)
+        if coin.rect.y >= HEIGHT:
+          coin.kill()
+          print(str(len(self.all_coins)))
 
   # output
   def draw(self):
