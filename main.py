@@ -26,6 +26,8 @@ Alpha goal: map moves with character (vertically)
 
 sources:
 
+Chris Cozort
+
 '''
 # create a game class that carries all the properties of the game and methods
 class Game:
@@ -38,6 +40,9 @@ class Game:
     # Determines screen dimensions from settings
     pg.display.set_caption("Joaquin's Game")
     self.playing = True
+    self.key_pressed = False
+    self.key_start = 0
+    self.key_elapsed = 0
   def load_data(self):
     self.game_folder = path.dirname(__file__)
     self.snd_folder = path.join(self.game_folder, 'sounds' ) 
@@ -86,7 +91,7 @@ class Game:
         if tile == 'J':
           Jumpboost(self, col, row)
         if tile == 'p':
-          Platformwall(self, col, row, 100, 20)
+          Platformwall(self, col, row, 100, TILESIZE)
           
   # this is a method
   # the run method runs the game loop
@@ -103,33 +108,51 @@ class Game:
     pg.quit()
   # input
   def events(self):
-    for event in pg.event.get():
+     for event in pg.event.get():
         if event.type == pg.QUIT:
-          self.playing = False
+          if self.playing:
+            self.playing = False
+          self.running = False
+        
+        if event.type == pg.KEYDOWN:
+          if event.key == pg.K_SPACE:
+            if not self.key_pressed:
+              self.player.jump()
+              self.key_start = pg.time.get_ticks()
+              self.key_pressed = True
+        
+        if event.type == pg.KEYUP:
+          if event.key == pg.K_s:
+            self.key_pressed = False
+            if self.key_elapsed < 300:
+              self.player.vel.y += GRAVITY
+            
+            print("Spacebar held for", self.key_elapsed, "milliseconds")
   # process
   # this is where the game updates the game state
   def update(self):
     # update all the sprites
     # text on screen including fps and coin count
-    self.all_sprites.update()
-    while len(self.all_platforms) < 15:
-      width = random.randrange(50, 100)
-      p = Platform(self, random.randrange(0, WIDTH//TILESIZE - width//TILESIZE), random.randrange(-5, 0), width, TILESIZE)
-      if random.randint(0,9) > 4:
-        c = Coin(self, p.rect.x//TILESIZE, p.rect.y//TILESIZE - 1)
-        self.all_coins.add(c) #adds coin on platform
-        self.all_sprites.add(c)
-      self.all_platforms.add(p)
-      self.all_sprites.add(p)
 
+    self.all_sprites.update()
+    while len(self.all_platformwalls) < 15:
+      width = random.randrange(50, 100)
+      p = Platformwall(self, random.randrange(0, WIDTH//TILESIZE - width//TILESIZE), random.randrange(-5, 0), width, TILESIZE)
+      if random.randint(0,9) > 4:
+        Q = Coin(self, p.rect.x//TILESIZE, p.rect.y//TILESIZE - 1)
+        self.all_coins.add(Q)
+        self.all_sprites.add(Q)
+      self.all_platformwalls.add(p)
+      self.all_sprites.add(p)
+      
     if self.player.rect.top <= HEIGHT/4:
-      print(str(len(self.all_platforms)))
+      print(str(len(self.all_platformwalls)))
       self.player.pos.y += abs(self.player.vel.y)
-      for plat in self.all_platforms:
+      for plat in self.all_platformwalls:
         plat.rect.y += abs(self.player.vel.y)
         if plat.rect.y >= HEIGHT:
-
-          plat.kill() #destroys plats after they are off screen
+          
+          plat.kill()
           print(str(len(self.all_coins)))
       for coin in self.all_coins:
         coin.rect.y += abs(self.player.vel.y)
@@ -144,6 +167,18 @@ class Game:
     self.draw_text(self.screen, str(self.dt*1000), 24, WHITE, WIDTH/30, HEIGHT/30)
     self.draw_text(self.screen, str(self.player.coin_count), 24, WHITE, WIDTH-100, 50)
     pg.display.flip()
+
+  def wait_for_key(self):
+        waiting = True
+        while waiting:
+            self.clock.tick(FPS)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    waiting = False
+                    self.running = False
+                if event.type == pg.KEYUP:
+                    waiting = False
+
 
 if __name__ == "__main__":
   # instantiate
