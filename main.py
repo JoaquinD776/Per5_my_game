@@ -43,16 +43,30 @@ class Game:
     self.key_pressed = False
     self.key_start = 0
     self.key_elapsed = 0
+    self.score = 0
   def load_data(self):
     self.game_folder = path.dirname(__file__)
+    # with open(path.join(self.game_folder, HS_FILE), 'w') as f:
+    #   f.write(str(0))
+    try:
+      with open(path.join(self.game_folder, HS_FILE), 'r') as f:
+        self.highscore = int(f.read())
+    except:
+      with open(path.join(self.game_folder, HS_FILE), 'w') as f:
+        f.write(str(0))
+
+
     self.snd_folder = path.join(self.game_folder, 'sounds' ) 
+      # load map
     self.map = Map(path.join(self.game_folder, 'game_1_level1.txt'))
     self.game_folder = path.dirname(__file__)
+    # load images
     self.img_folder = path.join(self.game_folder, 'images')
     self.jumpboost_img = pg.image.load(path.join(self.img_folder, 'Jumpboost.png'))
     self.coin_img = pg.image.load(path.join(self.img_folder, 'Coin.png'))
     self.wall_img = pg.image.load(path.join(self.img_folder, 'Wall.png'))
     self.platform_img = pg.image.load(path.join(self.img_folder, 'Platform.png'))
+    self.player_img = pg.image.load(path.join(self.img_folder, 'Player.png'))
        # load sounds
     #self.jump_snd = pg.mixer.Sound(path.join(self.snd_folder, 'jump_07.wav'))
     pg.mixer.music.load(path.join(self.snd_folder, 'bckgrd.ogg'))
@@ -76,7 +90,7 @@ class Game:
         print(col*TILESIZE)
         if tile == '1':
           Wall(self, col, row)
-        if tile == 'M':
+        if tile == 'M': 
           Mob(self, col, row)
         if tile == 'P':
           self.player = Player(self, col, row)
@@ -133,10 +147,10 @@ class Game:
   def update(self):
     # update all the sprites
     # text on screen including fps and coin count
-
+  
     self.all_sprites.update()
     while len(self.all_platformwalls) < 15:
-      width = random.randrange(50, 100)
+      width = (random.randrange(50, 100))
       p = Platformwall(self, random.randrange(0, WIDTH//TILESIZE - width//TILESIZE), random.randrange(-5, 0), width, TILESIZE)
       if random.randint(0,9) > 4:
         Q = Coin(self, p.rect.x//TILESIZE, p.rect.y//TILESIZE - 1)
@@ -158,27 +172,22 @@ class Game:
         coin.rect.y += abs(self.player.vel.y)
         if coin.rect.y >= HEIGHT:
           coin.kill()
-          print(str(len(self.all_coins)))
+          print(str(len(self.score)))
 
-  # output
+  def draw_text(self, surface, text, size, color, x, y):
+        font_name = pg.font.match_font('arial')
+        font = pg.font.Font(font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x,y)
+        surface.blit(text_surface, text_rect)
   def draw(self):
-    self.screen.fill(BLACK)
-    self.all_sprites.draw(self.screen)
-    self.draw_text(self.screen, str(self.dt*1000), 24, WHITE, WIDTH/30, HEIGHT/30)
-    self.draw_text(self.screen, str(self.player.coin_count), 24, WHITE, WIDTH-100, 50)
-    pg.display.flip()
-
-  def wait_for_key(self):
-        waiting = True
-        while waiting:
-            self.clock.tick(FPS)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    waiting = False
-                    self.running = False
-                if event.type == pg.KEYUP:
-                    waiting = False
-
+        self.screen.fill(BLACK)
+        self.all_sprites.draw(self.screen)
+        self.draw_text(self.screen, str(pg.time.get_ticks()), 24, WHITE, WIDTH/30, HEIGHT/30)
+        self.draw_text(self.screen, "High Score: " + str(self.highscore), 24, BLACK, WIDTH/2, HEIGHT/12)
+        self.draw_text(self.screen, "Current Score: " + str(self.score), 24, BLACK, WIDTH/2, HEIGHT/24)
+        pg.display.flip()
 
 if __name__ == "__main__":
   # instantiate

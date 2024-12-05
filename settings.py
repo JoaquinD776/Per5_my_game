@@ -17,3 +17,7 @@ BLUE = (0,0,255)
 GOLD = (255,215,0)
 PURPLE = (128, 0, 128)
 LIGHTBLUE = (173, 216, 230)
+
+COINS = 0
+
+HS_FILE = "highscore.txt"
